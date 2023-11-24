@@ -116,7 +116,7 @@
 -define:USE_INPUT_SYSTEM_POSE_CONTROL
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.Unsafe.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.Unsafe.dll"
 -r:"G:/Unity/Editor/Data/Managed/UnityEditor.Graphs.dll"
 -r:"G:/Unity/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"G:/Unity/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"

@@ -113,11 +113,11 @@
 -define:USE_INPUT_SYSTEM_POSE_CONTROL
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.dll"
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Mdb.dll"
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Pdb.dll"
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Rocks.dll"
--r:"G:/csStudy/UofU/VR/Final Project/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.ext.nunit@1.0.6/net35/unity-custom/nunit.framework.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Mdb.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Pdb.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.burst@1.8.4/Unity.Burst.CodeGen/Unity.Burst.Cecil.Rocks.dll"
+-r:"G:/csStudy/UofU/VR/Final Project/VR-Final/VR-Final-Project/Snooker game/Library/PackageCache/com.unity.ext.nunit@1.0.6/net35/unity-custom/nunit.framework.dll"
 -r:"G:/Unity/Editor/Data/Managed/Unity.CompilationPipeline.Common.dll"
 -r:"G:/Unity/Editor/Data/Managed/UnityEditor.Graphs.dll"
 -r:"G:/Unity/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
