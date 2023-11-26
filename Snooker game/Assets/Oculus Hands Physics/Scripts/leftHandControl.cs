@@ -6,7 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(ActionBasedController))]
 public class leftHandControl: MonoBehaviour
 {
-    ActionBasedController controller;
+    /*ActionBasedController controller;
     public Hand hand;
 
     // Start is called before the first frame update
@@ -20,5 +20,5 @@ public class leftHandControl: MonoBehaviour
     {
         hand.SetGrip(controller.selectAction.action.ReadValue<float>());
         hand.SetTrigger(controller.activateAction.action.ReadValue<float>());
-    }
+    }*/
 }
