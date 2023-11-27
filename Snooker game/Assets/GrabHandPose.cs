@@ -25,34 +25,59 @@ public class GrabHandPose : MonoBehaviour
     {
         XRGrabInteractable grabInteractable = GetComponent<XRGrabInteractable>();
 
-        grabInteractable.selectEntered.AddListener(SetupPose);
-        grabInteractable.selectExited.AddListener(UnSetPose);
+        // grabInteractable.selectEntered.AddListener(SetupPose);
+        // grabInteractable.selectExited.AddListener(UnSetPose);
 
         rightHandPose.gameObject.SetActive(false);
     }
 
-    public void SetupPose(BaseInteractionEventArgs arg)
+    // public void SetupPose(BaseInteractionEventArgs arg)
+    // {
+    //     if(arg.interactorObject is XRDirectInteractor)
+    //     {
+    //         HandData handData;
+            
+    //         Debug.Log("hand gesture!");
+
+    //         // left hand or right hand
+    //         if(arg.interactorObject.transform.CompareTag("Right Hand"))
+    //         {
+    //             handData = physicsRightHand.transform.GetComponent<HandData>();
+    //             handData.animator.enabled = false;
+    //             SetHandDataValues(handData, rightHandPose);
+    //         }
+    //         else
+    //         {
+    //             handData = physicsLeftHand.transform.GetComponent<HandData>();
+    //             handData.animator.enabled = false;
+    //             SetHandDataValues(handData, leftHandPose);
+    //         }
+
+    //         StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
+    //     }
+    // }
+
+    public void SetupPose()
     {
-        if(arg.interactorObject is XRDirectInteractor)
-        {
-            HandData handData;
+        HandData handData;
+        
+        Debug.Log("hand gesture!");
 
-            // left hand or right hand
-            if(arg.interactorObject.transform.CompareTag("Right Hand"))
-            {
-                handData = physicsRightHand.transform.GetComponent<HandData>();
-                handData.animator.enabled = false;
-                SetHandDataValues(handData, rightHandPose);
-            }
-            else
-            {
-                handData = physicsLeftHand.transform.GetComponent<HandData>();
-                handData.animator.enabled = false;
-                SetHandDataValues(handData, leftHandPose);
-            }
+        // left hand or right hand
+        // if(arg.interactorObject.transform.CompareTag("Right Hand"))
+        // {
+            handData = physicsRightHand.transform.GetComponent<HandData>();
+            handData.animator.enabled = false;
+            SetHandDataValues(handData, rightHandPose);
+        // }
+        // else
+        // {
+        //     handData = physicsLeftHand.transform.GetComponent<HandData>();
+        //     handData.animator.enabled = false;
+        //     SetHandDataValues(handData, leftHandPose);
+        // }
 
-            StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
-        }
+        StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
     }
 
     public void SetHandDataValues(HandData h1, HandData h2)
@@ -99,7 +124,7 @@ public class GrabHandPose : MonoBehaviour
             Vector3 p = Vector3.Lerp(startingPosition, newPosition, timer/posTransitionDuration);
             Quaternion r = Quaternion.Lerp(startingRotation, newRotation, timer/posTransitionDuration);
 
-            h.root.localPosition = p;
+            // h.root.localPosition = p;
             h.root.localRotation = r;
 
             for(int i=0; i<newBonesRotations.Length; i++)

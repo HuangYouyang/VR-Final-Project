@@ -62,21 +62,23 @@ public class Hand : MonoBehaviour
         // disable collider when grab objects
         handColliders = GetComponentsInChildren<Collider>(); // find all the hand colliders
 
-        // // Input Setup
-        // controller.selectAction.action.started += Grab;
-        // controller.selectAction.action.canceled += Release;
+        // Input Setup
+        controller.selectAction.action.started += Grab;
+        controller.selectAction.action.canceled += Release;
 
-        // // Teleport hands
-        // body.position = followTarget.position;
-        // body.rotation = followTarget.rotation;
+        // Teleport hands
+        body.position = followTarget.position;
+        body.rotation = followTarget.rotation;
     }
 
     public void EnableHandCollider()
     {
-        foreach (var item in handColliders)
-        {
-            item.enabled = true;
-        }
+        Debug.Log("enable collider");
+
+        // foreach (var item in handColliders)
+        // {
+        //     item.enabled = true;
+        // }
     }
 
     public void EnableHandColliderDelay(float delay)
@@ -86,10 +88,12 @@ public class Hand : MonoBehaviour
 
     public void DisableHandCollider()
     {
-        foreach (var item in handColliders)
-        {
-            item.enabled = false;
-        }
+        Debug.Log("disable collider");
+
+        // foreach (var item in handColliders)
+        // {
+        //     item.enabled = false;
+        // }
     }
 
     private void Update()
@@ -132,7 +136,6 @@ public class Hand : MonoBehaviour
         var rotationWithOffset = followTarget.rotation * Quaternion.Euler(rotationOffset);
         var q = rotationWithOffset * Quaternion.Inverse(body.rotation);
         q.ToAngleAxis(out float angle, out Vector3 axis);
-        // body.angularVelocity = axis * (angle * Mathf.Deg2Rad * rotateSpeed);
         if (Mathf.Abs(axis.magnitude) != Mathf.Infinity)
         {
             if (angle > 180.0f) { angle -= 360.0f; }
@@ -198,6 +201,17 @@ public class Hand : MonoBehaviour
         targetBody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         targetBody.interpolation = RigidbodyInterpolation.Interpolate;
 
+        // Reset follow target
+        followTarget = controller.gameObject.transform;
+
+        heldObject.GetComponent<Rigidbody>().isKinematic = true;
+        heldObject.layer = LayerMask.NameToLayer("Non-physics collision");
+
+        foreach (var item in handColliders)
+        {
+            item.enabled = true;
+        }
+
         // Attach joints
         // hand to object
         joint1 = gameObject.AddComponent<FixedJoint>();
@@ -221,12 +235,20 @@ public class Hand : MonoBehaviour
         joint2.enableCollision = false;
         joint2.enablePreprocessing = false;
 
-        // Reset follow target
-        followTarget = controller.gameObject.transform;
+        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
+        s2.SetupPose();
+
+        heldObject.GetComponent<Rigidbody>().isKinematic = false;
+        heldObject.layer = LayerMask.NameToLayer("Non-physics collision");
     }
 
     private void Release(InputAction.CallbackContext context)
     {   
+        foreach (var item in handColliders)
+        {
+            Physics.IgnoreCollision(item, heldObject.GetComponentInChildren<Collider>(), false);
+        }
+
         if(joint1 != null)
             Destroy(joint1);
         if(joint2 != null)

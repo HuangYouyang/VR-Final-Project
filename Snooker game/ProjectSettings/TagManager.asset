@@ -18,8 +18,8 @@ TagManager:
   - Player
   - Grabbable
   - Non-physics Hand Layer
-  - 
-  - 
+  - Non-physics collision
+  - Grabbing
   - 
   - 
   - 
