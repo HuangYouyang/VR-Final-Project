@@ -33,6 +33,13 @@ public class Hand : MonoBehaviour
     private Transform followTarget;
     private Rigidbody body;
 
+    // Non-physics hand
+    public Renderer nonPhysicalHand;
+    public float showNonPhysicalHandDistance = 0.05f;
+
+    // disable collider when grab objects
+    private Collider[] handColliders;
+
     private bool isGrabbing;
     private GameObject heldObject;
     private Transform grabPoint;
@@ -52,13 +59,58 @@ public class Hand : MonoBehaviour
         body.mass = 20f;
         body.maxAngularVelocity = 20f;
 
-        // Input Setup
-        controller.selectAction.action.started += Grab;
-        controller.selectAction.action.canceled += Release;
+        // disable collider when grab objects
+        handColliders = GetComponentsInChildren<Collider>(); // find all the hand colliders
 
-        // Teleport hands
-        body.position = followTarget.position;
-        body.rotation = followTarget.rotation;
+        // // Input Setup
+        // controller.selectAction.action.started += Grab;
+        // controller.selectAction.action.canceled += Release;
+
+        // // Teleport hands
+        // body.position = followTarget.position;
+        // body.rotation = followTarget.rotation;
+    }
+
+    public void EnableHandCollider()
+    {
+        foreach (var item in handColliders)
+        {
+            item.enabled = true;
+        }
+    }
+
+    public void EnableHandColliderDelay(float delay)
+    {
+        Invoke("EnableHandCollider", delay);
+    }
+
+    public void DisableHandCollider()
+    {
+        foreach (var item in handColliders)
+        {
+            item.enabled = false;
+        }
+    }
+
+    private void Update()
+    {
+        float distance = Vector3.Distance(transform.position, followTarget.position);
+
+        if(distance > showNonPhysicalHandDistance)
+        {
+            nonPhysicalHand.enabled = true;
+        }
+        else nonPhysicalHand.enabled = false;
+
+        // when hands stuck 
+        if(distance > 0.5)
+        {
+            body.detectCollisions = false;
+        }
+        else
+        {   
+            body.detectCollisions = true;
+        }
     }
 
     // Update is called once per frame
@@ -80,7 +132,7 @@ public class Hand : MonoBehaviour
         var rotationWithOffset = followTarget.rotation * Quaternion.Euler(rotationOffset);
         var q = rotationWithOffset * Quaternion.Inverse(body.rotation);
         q.ToAngleAxis(out float angle, out Vector3 axis);
-        body.angularVelocity = axis * (angle * Mathf.Deg2Rad * rotateSpeed);
+        // body.angularVelocity = axis * (angle * Mathf.Deg2Rad * rotateSpeed);
         if (Mathf.Abs(axis.magnitude) != Mathf.Infinity)
         {
             if (angle > 180.0f) { angle -= 360.0f; }
@@ -167,7 +219,6 @@ public class Hand : MonoBehaviour
         joint2.connectedMassScale = 1;
         joint2.massScale = 1;
         joint2.enableCollision = false;
-        joint2.enablePreprocessing = false;
         joint2.enablePreprocessing = false;
 
         // Reset follow target

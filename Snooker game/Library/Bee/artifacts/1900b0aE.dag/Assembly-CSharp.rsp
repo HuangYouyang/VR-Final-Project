@@ -395,9 +395,12 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.XR.LegacyInputHelpers.ref.dll"
 "Assets/AnimateHandOnInput.cs"
 "Assets/calculateCenter.cs"
+"Assets/GrabHandPose.cs"
+"Assets/HandData.cs"
 "Assets/Oculus Hands Physics/Scripts/Hand.cs"
 "Assets/Oculus Hands Physics/Scripts/HandPresence.cs"
 "Assets/Oculus Hands Physics/Scripts/leftHandControl.cs"
+"Assets/XRGrabInteractableTwoAttach.cs"
 -langversion:9.0
 
 /deterministic
