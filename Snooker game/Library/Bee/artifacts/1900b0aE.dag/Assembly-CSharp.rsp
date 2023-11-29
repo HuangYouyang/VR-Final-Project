@@ -395,6 +395,8 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.XR.LegacyInputHelpers.ref.dll"
 "Assets/AnimateHandOnInput.cs"
 "Assets/calculateCenter.cs"
+"Assets/createHingeJoint.cs"
+"Assets/CuePickUp.cs"
 "Assets/CueStick.cs"
 "Assets/GrabHandPose.cs"
 "Assets/HandData.cs"

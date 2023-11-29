@@ -41,7 +41,7 @@ public class Hand : MonoBehaviour
     private Collider[] handColliders;
 
     private bool isGrabbing;
-    private GameObject heldObject;
+    public GameObject heldObject;
     private Transform grabPoint;
     private FixedJoint joint1, joint2;
 
@@ -53,6 +53,10 @@ public class Hand : MonoBehaviour
     public float deltaDeg = 0.2f;
     public float distanceTar = 0.3f; // distance between target object and fingertip
     public float degree = 0.0f;
+
+    // hingeJoint
+    public bool hinge = false;
+    public Vector3 hingeJointPos;
 
     // Start is called before the first frame update
     void Start()

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Left Hand
   - Right Hand
+  - Cue
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - Non-physics Hand Layer
   - Non-physics collision
   - Grabbing
-  - 
+  - Table
   - 
   - 
   - 
