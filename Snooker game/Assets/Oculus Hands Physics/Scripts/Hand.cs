@@ -27,7 +27,7 @@ public class Hand : MonoBehaviour
     [SerializeField] private Vector3 rotationOffset;
     [Space]
     [SerializeField] private Transform palm; // gameObject attached on the palm
-    [SerializeField] float reachDistance = 0.1f, jointDistance = 0.05f;
+    [SerializeField] float reachDistance = 0.05f, jointDistance = 0.01f;
     [SerializeField] private LayerMask grabbableLayer;
 
     private Transform followTarget;
@@ -44,6 +44,15 @@ public class Hand : MonoBehaviour
     private GameObject heldObject;
     private Transform grabPoint;
     private FixedJoint joint1, joint2;
+
+    // fingerBones
+    public Transform[] fingerBones;
+    public Transform[] straightState;
+    public Transform[] bentState;
+    private FixedJoint[] fingerBonesJoints;
+    public float deltaDeg = 0.2f;
+    public float distanceTar = 0.3f; // distance between target object and fingertip
+    public float degree = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -235,19 +244,24 @@ public class Hand : MonoBehaviour
         joint2.enableCollision = false;
         joint2.enablePreprocessing = false;
 
+        // // pre-defined gesture
         GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
         s2.SetupPose();
 
+        // HandData handData;
+        // handData = GetComponent<HandData>();
+        // handData.animator.enabled = false;
+
+        // fingerMove(collider);
+
         heldObject.GetComponent<Rigidbody>().isKinematic = false;
-        heldObject.layer = LayerMask.NameToLayer("Non-physics collision");
+        heldObject.layer = LayerMask.NameToLayer("Grabbing");
     }
 
     private void Release(InputAction.CallbackContext context)
     {   
-        foreach (var item in handColliders)
-        {
-            Physics.IgnoreCollision(item, heldObject.GetComponentInChildren<Collider>(), false);
-        }
+        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
+        s2.UnSetPose();
 
         if(joint1 != null)
             Destroy(joint1);
@@ -266,7 +280,65 @@ public class Hand : MonoBehaviour
 
         isGrabbing = false;
         followTarget = controller.gameObject.transform;
+
+        heldObject.layer = LayerMask.NameToLayer("Grabbable");
     }
+
+    // Finger Bending
+    private void fingerMove(Collider heldObjectCollider)
+    {
+        for(int i=0;i<15;i++)
+        {
+            // fingerBones[i].position = straightState[i].position;
+            fingerBones[i].localRotation = straightState[i].localRotation;
+        }
+            
+        Transform[] copyFingerBones = fingerBones;
+
+        for(int i=0; i<5; i++)
+        {
+            // initialize
+            deltaDeg = 0.2f;
+            distanceTar = 0.3f;
+            float distanceHo = Mathf.Infinity;
+            float degree = 0.0f;
+
+            while(degree<1 && distanceHo>=distanceTar)
+            {
+                int numberOfFingerJoints = 3;
+                if(i==2) numberOfFingerJoints = 4;
+
+                for(int j=0;j<numberOfFingerJoints;j++)
+                {
+                    // fingerBones[i*3+j].position = fingerBones[i*3+j].position + (bentState[i*3+j].position - straightState[i*3+j].position) * degree;  
+                    // fingerBones[i*3+j].localRotation = fingerBones[i*3+j].localRotation + (bentState[i*3+j].localRotation - straightState[i*3+j].localRotation) * degree
+
+                    Quaternion q =  bentState[i*3+j].localRotation * Quaternion.Inverse(straightState[i*3+j].localRotation);
+                    Quaternion q2 = Quaternion.Slerp(Quaternion.identity, q, degree);
+                    Quaternion q3 = copyFingerBones[i*3+j].localRotation * q2; 
+                    fingerBones[i*3+j].localRotation = q3;
+
+                    Vector3 closestPoint = heldObjectCollider.ClosestPoint(fingerBones[i*3+numberOfFingerJoints-1].position);
+                    distanceHo = Vector3.Distance(fingerBones[i*3+numberOfFingerJoints-1].position, closestPoint);
+
+                    if(distanceHo<distanceTar)
+                    {  
+                        if(distanceTar==0.3f)
+                        {
+                            deltaDeg = 0.02f;
+                            distanceTar = 0.03f;
+                        }
+                        else 
+                        {
+                            distanceHo = -1;
+                            j = numberOfFingerJoints;
+                        }
+                    }
+                }
+                degree += deltaDeg;
+            }
+        }
+    } 
 
     // Animation
 

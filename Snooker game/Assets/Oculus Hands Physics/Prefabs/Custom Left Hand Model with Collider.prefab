@@ -937,6 +937,7 @@ MonoBehaviour:
     m_Bits: 512
   nonPhysicalHand: {fileID: 0}
   showNonPhysicalHandDistance: 0.05
+  fingerBones: []
 --- !u!114 &162227825
 MonoBehaviour:
   m_ObjectHideFlags: 0

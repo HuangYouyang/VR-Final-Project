@@ -60,8 +60,6 @@ public class GrabHandPose : MonoBehaviour
     public void SetupPose()
     {
         HandData handData;
-        
-        Debug.Log("hand gesture!");
 
         // left hand or right hand
         // if(arg.interactorObject.transform.CompareTag("Right Hand"))
@@ -137,15 +135,29 @@ public class GrabHandPose : MonoBehaviour
         }
     }
 
-    public void UnSetPose(BaseInteractionEventArgs arg)
+    // public void UnSetPose(BaseInteractionEventArgs arg)
+    // {
+    //     if(arg.interactorObject is XRDirectInteractor)
+    //     {
+    //         // HandData handData = arg.interactorObject.transform.GetComponent<HandData>();
+    //         HandData handData = physicsRightHand.transform.GetComponent<HandData>();
+    //         handData.animator.enabled = true;
+
+    //         StartCoroutine(SetHandDataRoutine(handData, startingHandPosition, startingHandRotation, startingFingerRotations, finalHandPosition, finalHandRotation, finalFingerRotations));
+    //     }
+    // }
+
+    public void UnSetPose()
     {
-        if(arg.interactorObject is XRDirectInteractor)
-        {
+        // if(arg.interactorObject is XRDirectInteractor)
+        // {
             // HandData handData = arg.interactorObject.transform.GetComponent<HandData>();
+
+            Debug.Log("Unset!!");
             HandData handData = physicsRightHand.transform.GetComponent<HandData>();
-            handData.animator.enabled = true;
+            handData.animator.enabled = false;
 
             StartCoroutine(SetHandDataRoutine(handData, startingHandPosition, startingHandRotation, startingFingerRotations, finalHandPosition, finalHandRotation, finalFingerRotations));
-        }
+        // }
     }
 }
