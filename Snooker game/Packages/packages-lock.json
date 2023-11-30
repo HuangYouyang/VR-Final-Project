@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "ca.andydbc.unity-texture-packer": {
-      "version": "file:G:/csStudy/UofU/VR/unity-texture-packer-master",
+      "version": "file:C:/Users/zkn16/Utah courses/Virtual Reality/unity-texture-packer-master",
       "depth": 0,
       "source": "local",
       "dependencies": {}
