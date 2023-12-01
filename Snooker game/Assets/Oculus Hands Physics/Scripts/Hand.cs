@@ -58,6 +58,9 @@ public class Hand : MonoBehaviour
     public bool hinge = false;
     public Vector3 hingeJointPos;
 
+    // cue
+    public GameObject cue;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -135,7 +138,10 @@ public class Hand : MonoBehaviour
     {
         // AnimateHand(); // animation
 
-        PhysicsMove();
+        if(cue.GetComponent<CuePickUp>().press == false)
+            PhysicsMove();
+        else if(controller.CompareTag("Left Hand"))
+            PhysicsMove();
     }
 
     private void PhysicsMove()
@@ -219,6 +225,13 @@ public class Hand : MonoBehaviour
 
         heldObject.GetComponent<Rigidbody>().isKinematic = true;
         heldObject.layer = LayerMask.NameToLayer("Non-physics collision");
+        // GameObject[] heldObjectChildren = heldObject.GetComponentsInChildren<GameObject>();
+        // Debug.Log(heldObjectChildren);
+        // // foreach (var heldItem in heldObjectChildren)
+        // // {
+        // //     heldItem.GetComponent<Rigidbody>().isKinematic = true;
+        // //     heldItem.layer = LayerMask.NameToLayer("Non-physics collision");
+        // // }
 
         foreach (var item in handColliders)
         {
@@ -259,7 +272,10 @@ public class Hand : MonoBehaviour
         // fingerMove(collider);
 
         heldObject.GetComponent<Rigidbody>().isKinematic = false;
-        heldObject.layer = LayerMask.NameToLayer("Grabbing");
+        // foreach (var heldItem in heldObjectChildren)
+        // {
+        //     heldItem.GetComponent<Rigidbody>().isKinematic = false;
+        // }
     }
 
     private void Release(InputAction.CallbackContext context)

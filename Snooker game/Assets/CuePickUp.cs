@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.HighDefinition;
 public class CuePickUp : MonoBehaviour
 {
     [SerializeField] private ActionBasedController controller; // controller
+    [SerializeField] private ActionBasedController rightHandcontroller; 
     public Hand rightHand;
     public Hand leftHand;
     public GameObject table;
@@ -13,7 +15,16 @@ public class CuePickUp : MonoBehaviour
     private Transform rbTransform;
     private Vector3 leftPrePos;
     private HingeJoint hingeJoint;
-    bool press = false;
+    public bool press = false;
+    public GameObject cueHead;
+    public GameObject[] Balls;
+
+    public GameObject circleProjector;
+
+    // lock cue
+    public GameObject player;
+    public  Vector3 lockPos;
+    public Quaternion lockRot;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +34,7 @@ public class CuePickUp : MonoBehaviour
         hingeJoint = GetComponent<HingeJoint>(); // hingeJoint connected the table and the cue
 
         controller.selectAction.action.started += cueStick;
+        controller.selectAction.action.canceled += Release;
     }
 
     // distance: left hand moves back and forth 
@@ -40,28 +52,11 @@ public class CuePickUp : MonoBehaviour
 
         press = true;
 
-        // check cue pick up
-        if(rightHand.heldObject!=null && rightHand.heldObject.CompareTag("Cue"))
-        {
-            // check cue put on the table
-            if(rightHand.hinge == true)
-            {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+        float downAngle = 10f;
 
-                RigidbodyConstraints currentConstraints = rb.constraints;
-
-                if(hingeJoint == null)
-                {
-                    // add hingeJoint
-                    hingeJoint = gameObject.AddComponent<HingeJoint>();
-
-                    hingeJoint.connectedBody = table.GetComponent<Rigidbody>();
-                    hingeJoint.anchor = new Vector3(0, 0, 0); // Set the anchor point
-                    hingeJoint.axis = new Vector3(0, 1, 0);
-                }
-            }
-        }
+        // lock pos
+        lockPos = gameObject.GetComponent<Transform>().localPosition;
+        lockRot = gameObject.GetComponent<Transform>().localRotation;
     }
 
     void FixedUpdate()
@@ -71,10 +66,55 @@ public class CuePickUp : MonoBehaviour
 
         float leftForwardDistance = leftForward();
 
+        // LayerMask layer;
+
         if(press)
         {
-            if(leftForwardDistance>0.02 || leftForwardDistance<-0.02) rbTransform.position  = rbTransform.position + rbTransform.up * leftForwardDistance;
+            // lock cue
+            gameObject.GetComponent<Transform>().localPosition = lockPos;
+            gameObject.GetComponent<Transform>().localRotation = lockRot;
+
+            // ray
+            var ray = new Ray(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up);
+            RaycastHit hit;
+
+            // show circle on the ball if hit
+            if(Physics.Raycast(ray, out hit, 3))
+            {   
+                if(hit.transform.gameObject.CompareTag("ball"))
+                {
+                    circleProjector.SetActive(true);
+                    circleProjector.GetComponent<Transform>().position = hit.point;
+                }
+            }
+
+            rightHand.GetComponent<Transform>().parent = gameObject.GetComponent<Transform>();
+
+            if(leftForwardDistance>0.02 || leftForwardDistance<-0.02) {
+
+                rbTransform.position  = rbTransform.position + rbTransform.up * leftForwardDistance;
+
+                if(Physics.Raycast(ray, out hit, 3))
+                {   
+                    Debug.DrawRay(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up, Color.green);
+
+                    if(hit.transform.gameObject.CompareTag("ball"))
+                    {
+                        GameObject ball = hit.transform.gameObject;
+                        ball.GetComponent<Rigidbody>().AddForceAtPosition(-1 * (hit.normal) * 5, hit.point); // give force
+                    }
+                }
+            }
         }
+    }
+
+    private void Release(InputAction.CallbackContext context)
+    {   
+        press = false;
+
+        rightHand.GetComponent<Transform>().parent = player.GetComponent<Transform>();
+
+        circleProjector.SetActive(false); // disable circle
     }
 
     // Update is called once per frame
@@ -117,4 +157,5 @@ public class CuePickUp : MonoBehaviour
         //     }
         // }
     }
+
 }
