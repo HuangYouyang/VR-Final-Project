@@ -4,19 +4,9 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
 
-// [RequireComponent(typeof(Animator))]
+
 public class Hand : MonoBehaviour
 {
-    // Animation
-    // public float animationSpeed;
-    // Animator animator;
-    // private float gripTarget;
-    // private float triggerTarget;
-    // private float gripCurrent;
-    // private float triggerCurrent;
-    // private string animatorGripParam = "Grip";
-    // private string animatorTriggerParam = "Trigger";
-
     // Physics Movement
     [Space]
     [SerializeField] private ActionBasedController controller; // follow controller
@@ -34,6 +24,8 @@ public class Hand : MonoBehaviour
     private Rigidbody body;
 
     // Non-physics hand
+    [Space]
+    public bool show_nonPhysicalHand = true;
     public Renderer nonPhysicalHand;
     public float showNonPhysicalHandDistance = 0.05f;
 
@@ -116,11 +108,8 @@ public class Hand : MonoBehaviour
     {
         float distance = Vector3.Distance(transform.position, followTarget.position);
 
-        if(distance > showNonPhysicalHandDistance)
-        {
-            nonPhysicalHand.enabled = true;
-        }
-        else nonPhysicalHand.enabled = false;
+        // show non PhysicalHand
+        if(show_nonPhysicalHand==true) showNonPhysicsHand(distance);
 
         // when hands stuck 
         if(distance > 0.5)
@@ -278,6 +267,15 @@ public class Hand : MonoBehaviour
         // }
     }
 
+    private void showNonPhysicsHand(float distance)
+    {
+        if(distance > showNonPhysicalHandDistance)
+        {
+            nonPhysicalHand.enabled = true;
+        }
+        else nonPhysicalHand.enabled = false;
+    }
+
     private void Release(InputAction.CallbackContext context)
     {   
         GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
@@ -359,30 +357,4 @@ public class Hand : MonoBehaviour
             }
         }
     } 
-
-    // Animation
-
-    // internal void SetGrip(float v)
-    // {
-    //     gripTarget = v;
-    // }
-
-    // internal void SetTrigger(float v)
-    // {
-    //     triggerTarget = v;
-    // }
-
-    // void AnimateHand()
-    // {
-    //     if(gripCurrent!=gripTarget)
-    //     {
-    //         gripCurrent = Mathf.MoveTowards(gripCurrent, gripTarget, Time.deltaTime * animationSpeed);
-    //         animator.SetFloat(animatorGripParam, gripCurrent);
-    //     }
-    //     if(triggerCurrent!=triggerTarget)
-    //     {
-    //         triggerCurrent = Mathf.MoveTowards(triggerCurrent, triggerTarget, Time.deltaTime * animationSpeed);
-    //         animator.SetFloat(animatorTriggerParam, triggerCurrent);
-    //     }
-    // }
 }
