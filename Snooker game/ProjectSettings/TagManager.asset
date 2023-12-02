@@ -7,6 +7,9 @@ TagManager:
   - Left Hand
   - Right Hand
   - Cue
+  - CinemachineTarget
+  - Fire
+  - ball
   layers:
   - Default
   - TransparentFX
