@@ -101,7 +101,7 @@ public class CuePickUp : MonoBehaviour
                     if(hit.transform.gameObject.CompareTag("ball"))
                     {
                         GameObject ball = hit.transform.gameObject;
-                        ball.GetComponent<Rigidbody>().AddForceAtPosition(-1 * (hit.normal) * 5, hit.point); // give force
+                        ball.GetComponent<Rigidbody>().AddForceAtPosition(-1 * (hit.normal) * 50, hit.point); // give force
                     }
                 }
             }
