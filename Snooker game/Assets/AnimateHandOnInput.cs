@@ -8,6 +8,7 @@ public class AnimateHandOnInput : MonoBehaviour
     public InputActionProperty pinchAnimationAction;
     public InputActionProperty gripAnimationAction;
     public Animator handAnimator;
+    public GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +20,10 @@ public class AnimateHandOnInput : MonoBehaviour
     void Update()
     {
         float triggerValue = pinchAnimationAction.action.ReadValue<float>();
+        if (triggerValue > 0)
+        {
+            gameManager.RestartTheGame();
+        }
         handAnimator.SetFloat("Trigger", triggerValue); // use the animation 
 
         float gripValue = gripAnimationAction.action.ReadValue<float>();
