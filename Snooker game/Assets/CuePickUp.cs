@@ -26,6 +26,8 @@ public class CuePickUp : MonoBehaviour
     public  Vector3 lockPos;
     public Quaternion lockRot;
 
+    GameManager gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +37,8 @@ public class CuePickUp : MonoBehaviour
 
         controller.selectAction.action.started += cueStick;
         controller.selectAction.action.canceled += Release;
+
+        gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
     }
 
     // distance: left hand moves back and forth 
@@ -102,6 +106,7 @@ public class CuePickUp : MonoBehaviour
                     {
                         GameObject ball = hit.transform.gameObject;
                         ball.GetComponent<Rigidbody>().AddForceAtPosition(-1 * (hit.normal) * 50, hit.point); // give force
+                        gameManager.IsShot();
                     }
                 }
             }
