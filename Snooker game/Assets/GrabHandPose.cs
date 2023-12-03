@@ -25,31 +25,39 @@ public class GrabHandPose : MonoBehaviour
     {
         XRGrabInteractable grabInteractable = GetComponent<XRGrabInteractable>();
 
-        // grabInteractable.selectEntered.AddListener(SetupPose);
-        // grabInteractable.selectExited.AddListener(UnSetPose);
+        grabInteractable.selectEntered.AddListener(SetupPose);
+        grabInteractable.selectExited.AddListener(UnSetPose);
 
         rightHandPose.gameObject.SetActive(false);
     }
 
-    public void SetupPose(ActionBasedController controller)
+    public void SetupPose(BaseInteractionEventArgs arg)
     {
-        HandData handData;
+        // HandData handData;
 
-        // left hand or right hand
-        if(controller.CompareTag("Right Hand"))
+        // // left hand or right hand
+        // if(controller.CompareTag("Right Hand"))
+        // {
+        //     handData = physicsRightHand.transform.GetComponent<HandData>();
+        //     handData.animator.enabled = false;
+        //     SetHandDataValues(handData, rightHandPose);
+        // }
+        // else
+        // {
+        //     handData = physicsLeftHand.transform.GetComponent<HandData>();
+        //     handData.animator.enabled = false;
+        //     SetHandDataValues(handData, leftHandPose);
+        // }
+
+        if(arg.interactorObject is XRDirectInteractor)
         {
-            handData = physicsRightHand.transform.GetComponent<HandData>();
+            HandData handData = arg.interactorObject.transform.GetComponentInChildren<HandData>();
             handData.animator.enabled = false;
+
             SetHandDataValues(handData, rightHandPose);
-        }
-        else
-        {
-            handData = physicsLeftHand.transform.GetComponent<HandData>();
-            handData.animator.enabled = false;
-            SetHandDataValues(handData, leftHandPose);
-        }
 
-        StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
+            StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
+        }
     }
 
     public void SetHandDataValues(HandData h1, HandData h2)
@@ -96,7 +104,7 @@ public class GrabHandPose : MonoBehaviour
             Vector3 p = Vector3.Lerp(startingPosition, newPosition, timer/posTransitionDuration);
             Quaternion r = Quaternion.Lerp(startingRotation, newRotation, timer/posTransitionDuration);
 
-            // h.root.localPosition = p;
+            h.root.localPosition = p;
             h.root.localRotation = r;
 
             for(int i=0; i<newBonesRotations.Length; i++)
@@ -109,29 +117,28 @@ public class GrabHandPose : MonoBehaviour
         }
     }
 
-    // public void UnSetPose(BaseInteractionEventArgs arg)
-    // {
-    //     if(arg.interactorObject is XRDirectInteractor)
-    //     {
-    //         // HandData handData = arg.interactorObject.transform.GetComponent<HandData>();
-    //         HandData handData = physicsRightHand.transform.GetComponent<HandData>();
-    //         handData.animator.enabled = true;
-
-    //         StartCoroutine(SetHandDataRoutine(handData, startingHandPosition, startingHandRotation, startingFingerRotations, finalHandPosition, finalHandRotation, finalFingerRotations));
-    //     }
-    // }
-
-    public void UnSetPose()
+    public void UnSetPose(BaseInteractionEventArgs arg)
     {
-        // if(arg.interactorObject is XRDirectInteractor)
-        // {
-            // HandData handData = arg.interactorObject.transform.GetComponent<HandData>();
-
-            Debug.Log("Unset!!");
-            HandData handData = physicsRightHand.transform.GetComponent<HandData>();
-            handData.animator.enabled = false;
+        if(arg.interactorObject is XRDirectInteractor)
+        {
+            HandData handData = arg.interactorObject.transform.GetComponentInChildren<HandData>();
+            handData.animator.enabled = true;
 
             StartCoroutine(SetHandDataRoutine(handData, startingHandPosition, startingHandRotation, startingFingerRotations, finalHandPosition, finalHandRotation, finalFingerRotations));
-        // }
+        }
     }
+
+    // public void UnSetPose()
+    // {
+    //     // if(arg.interactorObject is XRDirectInteractor)
+    //     // {
+    //         // HandData handData = arg.interactorObject.transform.GetComponent<HandData>();
+
+    //         Debug.Log("Unset!!");
+    //         HandData handData = physicsRightHand.transform.GetComponent<HandData>();
+    //         handData.animator.enabled = false;
+
+    //         StartCoroutine(SetHandDataRoutine(handData, startingHandPosition, startingHandRotation, startingFingerRotations, finalHandPosition, finalHandRotation, finalFingerRotations));
+    //     // }
+    // }
 }

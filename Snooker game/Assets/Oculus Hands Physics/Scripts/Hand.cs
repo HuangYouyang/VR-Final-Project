@@ -221,8 +221,8 @@ public class Hand : MonoBehaviour
         }
 
         // pre-defined gesture
-        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
-        s2.SetupPose(controller);
+        // GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
+        // s2.SetupPose(controller);
 
         // Attach joints
         // hand to object
@@ -270,8 +270,8 @@ public class Hand : MonoBehaviour
 
     private void Release(InputAction.CallbackContext context)
     {   
-        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
-        s2.UnSetPose();
+        // GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
+        // s2.UnSetPose();
 
         heldObject.layer = LayerMask.NameToLayer("Grabbable");
 
