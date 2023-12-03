@@ -75,6 +75,21 @@ public class CuePickUp : MonoBehaviour
         grabInteractable.movementType = XRBaseInteractable.MovementType.VelocityTracking;
 
         rightHandcontroller.enableInputTracking = false;
+
+        var ray = new Ray(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up);
+        RaycastHit hit;
+
+        if(Physics.Raycast(ray, out hit, 0.1f))
+        {   
+            float ballCueDis = Vector3.Distance(hit.transform.position, cueHead.GetComponent<Transform>().position);
+            Debug.Log(ballCueDis);
+            if(hit.transform.gameObject.CompareTag("ball") && ballCueDis<=0.1f)
+            {
+                // lock pos & rot
+                lockPos = gameObject.GetComponent<Transform>().localPosition - rbTransform.up * (0.1f-ballCueDis);
+                lockRot = gameObject.GetComponent<Transform>().localRotation;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -99,7 +114,7 @@ public class CuePickUp : MonoBehaviour
             RaycastHit hit;
 
             // show circle on the ball if hit
-            if(Physics.Raycast(ray, out hit, 1f))
+            if(Physics.Raycast(ray, out hit, 0.1f))
             {   
                 if(hit.transform.gameObject.CompareTag("ball"))
                 {
@@ -114,16 +129,17 @@ public class CuePickUp : MonoBehaviour
 
             Debug.DrawRay(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up, Color.green);
 
-            if(Physics.Raycast(ray, out hit, 0.01f))
+            if(Physics.Raycast(ray, out hit, 0.02f))
             {   
                 if(hit.transform.gameObject.CompareTag("ball"))
                 {
                     GameObject ball = hit.transform.gameObject;
-                    if((Mathf.Abs(speed) * 1000000)>2)
+                    if((Mathf.Abs(speed) * 1000000/2)>2)
                     {
-                        Debug.Log(-hit.normal * Mathf.Abs(speed) * 1000000);
+                        Debug.Log("hit");
+                        Debug.Log(-hit.normal * Mathf.Abs(speed) * 1000000/2);
                         Debug.Log(ball);
-                        ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(speed) * 1000000, hit.point); // give force
+                        ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(speed) * 1000000/2, hit.point); // give force
                         gameManager.IsShot();
                         // cueHitBallAudio = gameObject.GetComponent<AudioSource>(); // audio
                         // cueHitBallAudio.time = 1f; // start playing from 1s 
