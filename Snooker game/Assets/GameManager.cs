@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     bool ballPocketed = false;
     bool isWaitingForBallMovementToStop = false;
     bool willSwapPlayers = true;
-    int player1BallsRemaining = 7;
+    int player1BallsRemaining = 15;
     int player2BallsRemaining = 7;
     [SerializeField] float shotTimer = 3f;
     [SerializeField] float velThreshold = 0.02f;
@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
                 isWaitingForBallMovementToStop = false;
                 if (willSwapPlayers || !ballPocketed)
                 {
-                    NextPlayerTurn();
+                    //NextPlayerTurn();
                 }
                 /*else
                 {
