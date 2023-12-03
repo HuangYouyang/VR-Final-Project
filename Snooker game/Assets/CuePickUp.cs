@@ -14,8 +14,9 @@ public class CuePickUp : MonoBehaviour
     private Rigidbody rb;
     private Transform rbTransform;
     private Vector3 leftPrePos;
-    private HingeJoint hingeJoint;
+
     public bool press = false;
+    private bool checkHit = false;
     public GameObject cueHead;
     public GameObject[] Balls;
 
@@ -25,68 +26,74 @@ public class CuePickUp : MonoBehaviour
     public GameObject player;
     public  Vector3 lockPos;
     public Quaternion lockRot;
+    private float leftForwardDistance;
 
+    // audio
+    private AudioSource cueHitBallAudio;
+
+    // game manager
     GameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); // rb of the ball
-        rbTransform = GetComponent<Transform>(); // transform of the ball
-        hingeJoint = GetComponent<HingeJoint>(); // hingeJoint connected the table and the cue
+        rb = GetComponent<Rigidbody>();
+        rbTransform = GetComponent<Transform>(); 
 
         controller.selectAction.action.started += cueStick;
         controller.selectAction.action.canceled += Release;
 
-        gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+        leftForwardDistance = 0;
     }
 
     // distance: left hand moves back and forth 
     float leftForward()
     {
-        float distance = leftHand.transform.localPosition.x - leftPrePos.x;
+        Vector3 displacement = leftHand.transform.localPosition - leftPrePos;
+        float distanceMovedForward = Vector3.Dot(displacement, leftHand.transform.forward);
         leftPrePos = leftHand.transform.localPosition;
-        return distance;
+
+        return distanceMovedForward;
     }
 
     private void cueStick(InputAction.CallbackContext context) 
     {
-        Debug.Log("leftpress!!");
-        float leftForwardDistance = leftForward();
+        leftForwardDistance = 0;
 
         press = true;
 
-        float downAngle = 10f;
-
-        // lock pos
+        // lock pos & rot
         lockPos = gameObject.GetComponent<Transform>().localPosition;
         lockRot = gameObject.GetComponent<Transform>().localRotation;
     }
 
     void FixedUpdate()
     {
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        float leftForwardDistance = leftForward();
-
-        // LayerMask layer;
+        leftForwardDistance = leftForwardDistance + leftForward();
 
         if(press)
         {
-            // lock cue
-            gameObject.GetComponent<Transform>().localPosition = lockPos;
-            gameObject.GetComponent<Transform>().localRotation = lockRot;
+            // freeze cue & hands
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            rightHand.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
+            // lock cue
+            gameObject.GetComponent<Transform>().localPosition = lockPos + rbTransform.up * leftForwardDistance * 20; 
+            gameObject.GetComponent<Transform>().localRotation = lockRot;
+        
             // ray
             var ray = new Ray(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up);
             RaycastHit hit;
 
             // show circle on the ball if hit
-            if(Physics.Raycast(ray, out hit, 3))
+            if(Physics.Raycast(ray, out hit, 1.0f))
             {   
                 if(hit.transform.gameObject.CompareTag("ball"))
                 {
+                    float ballCueDis = Vector3.Distance(hit.transform.position, cueHead.GetComponent<Transform>().position);
+                    float circleSize = Mathf.Lerp(0.03f, 0.06f, ballCueDis);
+                    DecalProjector decalProjector = circleProjector.GetComponent<DecalProjector>();
+                    decalProjector.size = new Vector3(circleSize, circleSize, circleSize);
                     circleProjector.SetActive(true);
                     circleProjector.GetComponent<Transform>().position = hit.point;
                 }
@@ -94,23 +101,31 @@ public class CuePickUp : MonoBehaviour
 
             rightHand.GetComponent<Transform>().parent = gameObject.GetComponent<Transform>();
 
-            if(leftForwardDistance>0.02 || leftForwardDistance<-0.02) {
+            Debug.DrawRay(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up, Color.green);
 
-                rbTransform.position  = rbTransform.position + rbTransform.up * leftForwardDistance;
-
-                if(Physics.Raycast(ray, out hit, 3))
-                {   
-                    Debug.DrawRay(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up, Color.green);
-
-                    if(hit.transform.gameObject.CompareTag("ball"))
+            if(Physics.Raycast(ray, out hit, 1.0f))
+            {   
+                if(hit.transform.gameObject.CompareTag("ball"))
+                {
+                    GameObject ball = hit.transform.gameObject;
+                    Debug.Log(leftForwardDistance);
+                    if(leftForwardDistance>0)
                     {
-                        GameObject ball = hit.transform.gameObject;
-                        ball.GetComponent<Rigidbody>().AddForceAtPosition(-1 * (hit.normal) * 50, hit.point); // give force
+                        ball.GetComponent<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(leftForwardDistance) * 200, hit.point); // give force
                         gameManager.IsShot();
+                        cueHitBallAudio = gameObject.GetComponent<AudioSource>(); // audio
+                        cueHitBallAudio.time = 2f; // start playing from 1s 
+                        cueHitBallAudio.Play();
+                        Invoke("StopAudio", 2f); // duration: 2s
                     }
                 }
             }
         }
+    }
+
+    void StopAudio()
+    {
+        cueHitBallAudio.Stop();
     }
 
     private void Release(InputAction.CallbackContext context)
@@ -120,47 +135,8 @@ public class CuePickUp : MonoBehaviour
         rightHand.GetComponent<Transform>().parent = player.GetComponent<Transform>();
 
         circleProjector.SetActive(false); // disable circle
+
+        rb.constraints = RigidbodyConstraints.None;
+        rightHand.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // // check cue pick up
-        // if(rightHand.heldObject!=null && rightHand.heldObject.CompareTag("Cue"))
-        // {
-        //     // check cue put on the table
-        //     if(rightHand.hinge == true)
-        //     {
-        //         // add hingeJoint
-        //         HingeJoint hingeJoint = gameObject.AddComponent<HingeJoint>();
-
-        //         hingeJoint.connectedBody = GetComponent<Rigidbody>();
-        //         hingeJoint.anchor = new Vector3(0, 0, 0); // Set the anchor point
-        //         hingeJoint.axis = new Vector3(0, 1, 0);
-        //     }
-        // }
-
-        // rb.velocity = Vector3.zero;
-        // rb.angularVelocity = Vector3.zero;
-
-        // if(leftForwardDistance>0.02 || leftForwardDistance<-0.02) rbTransform.position  = rbTransform.position + rbTransform.up * leftForwardDistance;
-
-        // // check cue put on the table
-        // if(rightHand.hinge == true)
-        // {
-        //     if(hingeJoint == null)
-        //     {
-        //         // add hingeJoint
-        //         hingeJoint = gameObject.AddComponent<HingeJoint>();
-
-        //         hingeJoint.connectedBody = table.GetComponent<Rigidbody>();
-        //         hingeJoint.anchor = rightHand.hingeJointPos;
-        //         hingeJoint.axis = new Vector3(0, 1, 0);
-
-        //         hingeJoint.breakForce = 500;
-        //         hingeJoint.breakTorque = 500;
-        //     }
-        // }
-    }
-
 }

@@ -31,49 +31,23 @@ public class GrabHandPose : MonoBehaviour
         rightHandPose.gameObject.SetActive(false);
     }
 
-    // public void SetupPose(BaseInteractionEventArgs arg)
-    // {
-    //     if(arg.interactorObject is XRDirectInteractor)
-    //     {
-    //         HandData handData;
-            
-    //         Debug.Log("hand gesture!");
-
-    //         // left hand or right hand
-    //         if(arg.interactorObject.transform.CompareTag("Right Hand"))
-    //         {
-    //             handData = physicsRightHand.transform.GetComponent<HandData>();
-    //             handData.animator.enabled = false;
-    //             SetHandDataValues(handData, rightHandPose);
-    //         }
-    //         else
-    //         {
-    //             handData = physicsLeftHand.transform.GetComponent<HandData>();
-    //             handData.animator.enabled = false;
-    //             SetHandDataValues(handData, leftHandPose);
-    //         }
-
-    //         StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
-    //     }
-    // }
-
-    public void SetupPose()
+    public void SetupPose(ActionBasedController controller)
     {
         HandData handData;
 
         // left hand or right hand
-        // if(arg.interactorObject.transform.CompareTag("Right Hand"))
-        // {
+        if(controller.CompareTag("Right Hand"))
+        {
             handData = physicsRightHand.transform.GetComponent<HandData>();
             handData.animator.enabled = false;
             SetHandDataValues(handData, rightHandPose);
-        // }
-        // else
-        // {
-        //     handData = physicsLeftHand.transform.GetComponent<HandData>();
-        //     handData.animator.enabled = false;
-        //     SetHandDataValues(handData, leftHandPose);
-        // }
+        }
+        else
+        {
+            handData = physicsLeftHand.transform.GetComponent<HandData>();
+            handData.animator.enabled = false;
+            SetHandDataValues(handData, leftHandPose);
+        }
 
         StartCoroutine(SetHandDataRoutine(handData, finalHandPosition, finalHandRotation, finalFingerRotations, startingHandPosition, startingHandRotation, startingFingerRotations));
     }

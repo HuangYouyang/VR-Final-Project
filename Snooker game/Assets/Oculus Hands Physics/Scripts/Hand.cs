@@ -56,9 +56,6 @@ public class Hand : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Animation
-        // animator = GetComponent<Animator>();
-
         // Physics Movement
         followTarget = controller.gameObject.transform;
         body = GetComponent<Rigidbody>();
@@ -125,8 +122,6 @@ public class Hand : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // AnimateHand(); // animation
-
         if(cue.GetComponent<CuePickUp>().press == false)
             PhysicsMove();
         else if(controller.CompareTag("Left Hand"))
@@ -186,12 +181,12 @@ public class Hand : MonoBehaviour
     {
         isGrabbing = true;
 
-        // Create a grab point
+        // 1.Create a grab point
         grabPoint = new GameObject().transform;
         grabPoint.position = collider.ClosestPoint(palm.position);
         grabPoint.parent = heldObject.transform;
 
-        // Move hand to grab point
+        // 2.Move hand to grab point
         followTarget = grabPoint;
 
         // Wait for hand to reach grab point
@@ -200,7 +195,7 @@ public class Hand : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        // Freeze
+        // 3.Freeze
         body.velocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
         targetBody.velocity = Vector3.zero;
@@ -209,23 +204,25 @@ public class Hand : MonoBehaviour
         targetBody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         targetBody.interpolation = RigidbodyInterpolation.Interpolate;
 
-        // Reset follow target
-        followTarget = controller.gameObject.transform;
-
         heldObject.GetComponent<Rigidbody>().isKinematic = true;
         heldObject.layer = LayerMask.NameToLayer("Non-physics collision");
-        // GameObject[] heldObjectChildren = heldObject.GetComponentsInChildren<GameObject>();
-        // Debug.Log(heldObjectChildren);
-        // // foreach (var heldItem in heldObjectChildren)
-        // // {
-        // //     heldItem.GetComponent<Rigidbody>().isKinematic = true;
-        // //     heldItem.layer = LayerMask.NameToLayer("Non-physics collision");
-        // // }
+        Transform[] heldObjectChildren = heldObject.GetComponentsInChildren<Transform>();
+        foreach (var heldItem in heldObjectChildren)
+        {
+            heldItem.gameObject.layer = LayerMask.NameToLayer("Non-physics collision");
+        }
+
+        // Reset follow target
+        followTarget = controller.gameObject.transform;
 
         foreach (var item in handColliders)
         {
             item.enabled = true;
         }
+
+        // pre-defined gesture
+        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
+        s2.SetupPose(controller);
 
         // Attach joints
         // hand to object
@@ -250,13 +247,8 @@ public class Hand : MonoBehaviour
         joint2.enableCollision = false;
         joint2.enablePreprocessing = false;
 
-        // // pre-defined gesture
-        GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
-        s2.SetupPose();
-
         // HandData handData;
         // handData = GetComponent<HandData>();
-        // handData.animator.enabled = false;
 
         // fingerMove(collider);
 
@@ -281,6 +273,8 @@ public class Hand : MonoBehaviour
         GrabHandPose s2 = heldObject.GetComponent<GrabHandPose>();
         s2.UnSetPose();
 
+        heldObject.layer = LayerMask.NameToLayer("Grabbable");
+
         if(joint1 != null)
             Destroy(joint1);
         if(joint2 != null)
@@ -298,63 +292,61 @@ public class Hand : MonoBehaviour
 
         isGrabbing = false;
         followTarget = controller.gameObject.transform;
-
-        heldObject.layer = LayerMask.NameToLayer("Grabbable");
     }
 
-    // Finger Bending
-    private void fingerMove(Collider heldObjectCollider)
-    {
-        for(int i=0;i<15;i++)
-        {
-            // fingerBones[i].position = straightState[i].position;
-            fingerBones[i].localRotation = straightState[i].localRotation;
-        }
+    // Finger Bending - deleted
+    // private void fingerMove(Collider heldObjectCollider)
+    // {
+    //     for(int i=0;i<15;i++)
+    //     {
+    //         // fingerBones[i].position = straightState[i].position;
+    //         fingerBones[i].localRotation = straightState[i].localRotation;
+    //     }
             
-        Transform[] copyFingerBones = fingerBones;
+    //     Transform[] copyFingerBones = fingerBones;
 
-        for(int i=0; i<5; i++)
-        {
-            // initialize
-            deltaDeg = 0.2f;
-            distanceTar = 0.3f;
-            float distanceHo = Mathf.Infinity;
-            float degree = 0.0f;
+    //     for(int i=0; i<5; i++)
+    //     {
+    //         // initialize
+    //         deltaDeg = 0.2f;
+    //         distanceTar = 0.3f;
+    //         float distanceHo = Mathf.Infinity;
+    //         float degree = 0.0f;
 
-            while(degree<1 && distanceHo>=distanceTar)
-            {
-                int numberOfFingerJoints = 3;
-                if(i==2) numberOfFingerJoints = 4;
+    //         while(degree<1 && distanceHo>=distanceTar)
+    //         {
+    //             int numberOfFingerJoints = 3;
+    //             if(i==2) numberOfFingerJoints = 4;
 
-                for(int j=0;j<numberOfFingerJoints;j++)
-                {
-                    // fingerBones[i*3+j].position = fingerBones[i*3+j].position + (bentState[i*3+j].position - straightState[i*3+j].position) * degree;  
-                    // fingerBones[i*3+j].localRotation = fingerBones[i*3+j].localRotation + (bentState[i*3+j].localRotation - straightState[i*3+j].localRotation) * degree
+    //             for(int j=0;j<numberOfFingerJoints;j++)
+    //             {
+    //                 // fingerBones[i*3+j].position = fingerBones[i*3+j].position + (bentState[i*3+j].position - straightState[i*3+j].position) * degree;  
+    //                 // fingerBones[i*3+j].localRotation = fingerBones[i*3+j].localRotation + (bentState[i*3+j].localRotation - straightState[i*3+j].localRotation) * degree
 
-                    Quaternion q =  bentState[i*3+j].localRotation * Quaternion.Inverse(straightState[i*3+j].localRotation);
-                    Quaternion q2 = Quaternion.Slerp(Quaternion.identity, q, degree);
-                    Quaternion q3 = copyFingerBones[i*3+j].localRotation * q2; 
-                    fingerBones[i*3+j].localRotation = q3;
+    //                 Quaternion q =  bentState[i*3+j].localRotation * Quaternion.Inverse(straightState[i*3+j].localRotation);
+    //                 Quaternion q2 = Quaternion.Slerp(Quaternion.identity, q, degree);
+    //                 Quaternion q3 = copyFingerBones[i*3+j].localRotation * q2; 
+    //                 fingerBones[i*3+j].localRotation = q3;
 
-                    Vector3 closestPoint = heldObjectCollider.ClosestPoint(fingerBones[i*3+numberOfFingerJoints-1].position);
-                    distanceHo = Vector3.Distance(fingerBones[i*3+numberOfFingerJoints-1].position, closestPoint);
+    //                 Vector3 closestPoint = heldObjectCollider.ClosestPoint(fingerBones[i*3+numberOfFingerJoints-1].position);
+    //                 distanceHo = Vector3.Distance(fingerBones[i*3+numberOfFingerJoints-1].position, closestPoint);
 
-                    if(distanceHo<distanceTar)
-                    {  
-                        if(distanceTar==0.3f)
-                        {
-                            deltaDeg = 0.02f;
-                            distanceTar = 0.03f;
-                        }
-                        else 
-                        {
-                            distanceHo = -1;
-                            j = numberOfFingerJoints;
-                        }
-                    }
-                }
-                degree += deltaDeg;
-            }
-        }
-    } 
+    //                 if(distanceHo<distanceTar)
+    //                 {  
+    //                     if(distanceTar==0.3f)
+    //                     {
+    //                         deltaDeg = 0.02f;
+    //                         distanceTar = 0.03f;
+    //                     }
+    //                     else 
+    //                     {
+    //                         distanceHo = -1;
+    //                         j = numberOfFingerJoints;
+    //                     }
+    //                 }
+    //             }
+    //             degree += deltaDeg;
+    //         }
+    //     }
+    // } 
 }
