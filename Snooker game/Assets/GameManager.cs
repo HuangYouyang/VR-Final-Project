@@ -283,7 +283,7 @@ public class GameManager : MonoBehaviour
             ballPocketed = true;
             if (CheckBall(other.gameObject.GetComponent<Ball>()))
             {
-                Destroy(other.gameObject);
+                // Destroy(other.gameObject);
             }
             else
             {

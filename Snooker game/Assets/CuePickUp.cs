@@ -37,6 +37,11 @@ public class CuePickUp : MonoBehaviour
     // hit
     private float previousTime;
 
+    // projection
+    [SerializeField] private Transform[] points;
+    [SerializeField] private LineController line;
+    private LineRenderer myLineRenderer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,6 +54,8 @@ public class CuePickUp : MonoBehaviour
         leftForwardDistance = 0;
 
         gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+
+        myLineRenderer = GetComponent<LineRenderer>();
     }
     
     // distance: left hand moves back and forth 
@@ -60,6 +67,7 @@ public class CuePickUp : MonoBehaviour
 
         return distanceMovedForward;
     }
+
 
     private void cueStick(InputAction.CallbackContext context) 
     {
@@ -79,14 +87,15 @@ public class CuePickUp : MonoBehaviour
         var ray = new Ray(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up);
         RaycastHit hit;
 
-        if(Physics.Raycast(ray, out hit, 0.1f))
+        if(Physics.Raycast(ray, out hit, 0.12f))
         {   
             float ballCueDis = Vector3.Distance(hit.transform.position, cueHead.GetComponent<Transform>().position);
             Debug.Log(ballCueDis);
-            if(hit.transform.gameObject.CompareTag("ball") && ballCueDis<=0.1f)
+            if(hit.transform.gameObject.CompareTag("ball") && ballCueDis<=0.12f)
             {
+                gameObject.layer = LayerMask.NameToLayer("Non-Physics collision");
                 // lock pos & rot
-                lockPos = gameObject.GetComponent<Transform>().localPosition - rbTransform.up * (0.1f-ballCueDis);
+                lockPos = gameObject.GetComponent<Transform>().localPosition - rbTransform.up * (0.12f-ballCueDis);
                 lockRot = gameObject.GetComponent<Transform>().localRotation;
             }
         }
@@ -114,37 +123,53 @@ public class CuePickUp : MonoBehaviour
             RaycastHit hit;
 
             // show circle on the ball if hit
-            if(Physics.Raycast(ray, out hit, 0.1f))
+            if(Physics.Raycast(ray, out hit, 0.12f))
             {   
                 if(hit.transform.gameObject.CompareTag("ball"))
                 {
+                    myLineRenderer.enabled = true;
+                    points[0] = cueHead.GetComponent<Transform>();
+                    points[1] = hit.transform;
+                    // GameObject newObject = new GameObject("MyObjectWithoutTransform");
+                    // newObject.transform.position = hit.transform.position + cueHead.GetComponent<Transform>().up * 2;
+                    // points[1] = newObject.transform;
+
+                    line.SetUpLine(points);
+                    // Destroy(newObject.GetComponent<Transform>());
+
                     float ballCueDis = Vector3.Distance(hit.transform.position, cueHead.GetComponent<Transform>().position);
-                    float circleSize = Mathf.Lerp(0.03f, 0.06f, ballCueDis);
+                    float circleSize = Mathf.Lerp(0.02f, 0.04f, ballCueDis);
                     DecalProjector decalProjector = circleProjector.GetComponent<DecalProjector>();
                     decalProjector.size = new Vector3(circleSize, circleSize, circleSize);
                     circleProjector.SetActive(true);
                     circleProjector.GetComponent<Transform>().position = hit.point;
+
+                    // GameObject ball = hit.transform.gameObject;
+                    // _projection.SimulateTrajectory(ball, ball.GetComponent<Transform>().position, speed, hit.normal, hit.point);
                 }
             }
 
             Debug.DrawRay(cueHead.GetComponent<Transform>().position, cueHead.GetComponent<Transform>().up, Color.green);
 
-            if(Physics.Raycast(ray, out hit, 0.02f))
+            if(Physics.Raycast(ray, out hit, 0.05f))
             {   
                 if(hit.transform.gameObject.CompareTag("ball"))
                 {
                     GameObject ball = hit.transform.gameObject;
-                    if((Mathf.Abs(speed) * 1000000/2)>2)
+                    if((Mathf.Abs(speed) * 1000000/1.5f)>1)
                     {
+                        cueHitBallAudio = gameObject.GetComponent<AudioSource>(); // audio
+                        cueHitBallAudio.time = 2f; // start playing from 1s 
+                        cueHitBallAudio.Play();
+                        Invoke("StopAudio", 1f); // duration: 2s
                         Debug.Log("hit");
-                        Debug.Log(-hit.normal * Mathf.Abs(speed) * 1000000/2);
+                        Debug.Log(-hit.normal * Mathf.Abs(speed) * 1000000/1.5f);
                         Debug.Log(ball);
-                        ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(speed) * 1000000/2, hit.point); // give force
+
+                        // ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(speed) * 1000000/1.5f, hit.point); // give force
+                        // ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(-hit.normal * Mathf.Abs(speed) * 1000000/1.5f, ball.transform.position); // give force
+                        ball.GetComponentInChildren<Rigidbody>().AddForceAtPosition(ray.direction * Mathf.Abs(speed) * 1000000/1.5f, hit.point); // give force
                         gameManager.IsShot();
-                        // cueHitBallAudio = gameObject.GetComponent<AudioSource>(); // audio
-                        // cueHitBallAudio.time = 1f; // start playing from 1s 
-                        // cueHitBallAudio.Play();
-                        // Invoke("StopAudio", 2f); // duration: 2s
                         checkHit = true;
                     }
                 }
@@ -167,6 +192,8 @@ public class CuePickUp : MonoBehaviour
 
     private void Release(InputAction.CallbackContext context)
     {   
+        // gameObject.layer = LayerMask.NameToLayer("Grabbable");
+
         press = false;
 
         circleProjector.SetActive(false); // disable circle
@@ -176,5 +203,7 @@ public class CuePickUp : MonoBehaviour
         rightHandcontroller.enableInputTracking = true;
 
         checkHit = false;
+
+        myLineRenderer.enabled = false;
     }
 }
